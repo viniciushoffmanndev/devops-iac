@@ -1,0 +1,16 @@
+# Terraform
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+
+# Credentials
+*.json
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
