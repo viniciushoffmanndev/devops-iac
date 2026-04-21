@@ -21,3 +21,9 @@ variable "organization_id" {
   description = "ID da organização - Deve ser definido no tfvars"
   type        = string
 }
+
+variable "password"{
+  description = "Senha do usuário do Google Workspace - Deve ser definido no tfvars"
+  type = string
+  sensitive = true # Marca a variável como sensível para evitar exposição acidental
+}
