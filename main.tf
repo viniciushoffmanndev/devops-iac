@@ -1,24 +1,4 @@
 #######################################
-# VARIABLES
-#######################################
-
-variable "region" {
-  
-}
-
-variable "billing_account" {
-
-}
-
-variable "organization_id" {
-
-}
-
-variable "suffix" {
-  
-}
-
-#######################################
 # LOCALS (PADRÃO DE NOMES CONFORME DIAGRAMA)
 #######################################
 
@@ -27,14 +7,14 @@ locals {
 
   projects = {
     # Comercial -> Mobile
-    mobile_dev = {
-      name = "${local.prefix}-comercial-mobile-dev"
-      folder_key = "mobile"
-    }
-    mobile_prod = {
-      name = "${local.prefix}-comercial-mobile-prod"
-      folder_key = "mobile"
-    }
+    # mobile_dev = {
+    #   name = "${local.prefix}-comercial-mobile-dev"
+    #   folder_key = "mobile"
+    # }
+    # mobile_prod = {
+    #   name = "${local.prefix}-comercial-mobile-prod"
+    #   folder_key = "mobile"
+    # }
 
     # Comercial -> ERP
     erp_dev = {
@@ -79,7 +59,54 @@ provider "google" {
   project = "${local.prefix}-devops-iac-${var.suffix}"
   region  = var.region
   user_project_override = true
+  impersonate_service_account = "terraformworkspace@pais-devops-iac-002.iam.gserviceaccount.com"
 }
+
+provider "googleworkspace" {
+  # O Terraform usará o Application Default Credentials (ADC) automaticamente
+  # sem precisar da linha 'credentials'.
+  
+  customer_id             = "C01n57l2f"
+  impersonated_user_email = "viniciuspais@viniciuspais.com.br"
+  
+  oauth_scopes = [
+    "https://www.googleapis.com/auth/admin.directory.user",
+    "https://www.googleapis.com/auth/admin.directory.userschema",
+    "https://www.googleapis.com/auth/admin.directory.group",
+    # Certifique-se de adicionar aqui outros escopos que seu curso exigir
+  ]
+}
+
+  resource "googleworkspace_group" "devops" {
+  email       = "devops@viniciuspais.com.br" # Use o seu domínio aqui!
+  name        = "Devops"
+  description = "Devops Group"
+
+  aliases = ["dev-ops@viniciuspais.com.br"]
+
+  timeouts {
+    create = "1m"
+    update = "1m"
+  }
+}
+
+resource "googleworkspace_user" "paula" {
+  primary_email = "paula@viniciuspais.com.br" # Use o seu domínio aqui!
+  password      = var.password
+  hash_function = "MD5"
+
+  name {
+    given_name  = "Paula"
+    family_name = "Hoffmann"
+  }
+}
+
+resource "googleworkspace_group_member" "manager" {
+  group_id = googleworkspace_group.devops.id
+  email    = googleworkspace_user.paula.primary_email
+  role      = "MANAGER"
+}
+
 
 #######################################
 # FOLDERS (ESTRUTURA HIERÁRQUICA)
